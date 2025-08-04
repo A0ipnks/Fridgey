@@ -1,6 +1,6 @@
 /* ベースコンポーネントスタイル */
 .btn {
-  @apply px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200;
+  @apply px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 inline-block text-center;
 }
 
 .btn-primary {
