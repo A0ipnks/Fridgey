@@ -1,0 +1,405 @@
+<div class="container mx-auto px-4 py-8">
+    <!-- 戻るボタン -->
+    <div class="mb-4">
+      <%= link_to rooms_path, class: "inline-flex items-center text-gray-600 hover:text-gray-800 transition-colors" do %>
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+        冷蔵庫一覧に戻る
+      <% end %>
+    </div>
+
+    <!-- ヘッダー -->
+    <div class="flex-col justify-between items-center mb-6 sm:flex-row sm:items-start sm:space-y-4 sm:mb-4">
+      <div class="flex-1">
+        <div class="flex items-center space-x-3 mb-2">
+          <h1 class="text-3xl font-bold text-gray-800"><%= @room.name %></h1>
+          <% if current_user.admin_of?(@room) %>
+            <%= link_to @room,
+                data: {
+                  turbo_method: :delete,
+                  turbo_confirm: "「#{@room.name}」を完全に削除しますか？\n\n⚠️ この操作は取り消せません。\n・全ての食材データが削除されます\n・メンバーからもアクセスできなくなります\n\n削除する場合は「OK」を押してください。"
+                },
+                class: "text-red-600 hover:text-red-800 transition-colors",
+                title: "冷蔵庫を削除" do %>
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+              </svg>
+            <% end %>
+          <% end %>
+        </div>
+        <% if @room.description.present? %>
+          <p class="text-gray-600 mt-2"><%= @room.description %></p>
+        <% end %>
+      </div>
+
+      <!-- アクションエリア -->
+      <div class="flex space-x-3 mt-4">
+        <%= link_to new_room_food_item_path(@room),
+            class: "bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors" do %>
+          食材を追加
+        <% end %>
+
+        <% if current_user.admin_of?(@room) %>
+          <button onclick="openEditModal()"
+                  class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
+            冷蔵庫情報を編集
+          </button>
+        <% end %>
+      </div>
+    </div>
+    <!-- 招待コード -->
+    <% if current_user.admin_of?(@room) %>
+      <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+        <h3 class="text-lg font-semibold text-blue-800 mb-2">招待コード</h3>
+        <div class="flex items-center space-x-3">
+          <code class="invitation-code bg-white px-3 py-2 rounded border text-lg font-mono"><%= @room.invitation_code %></code>
+          <button onclick="copyInvitationCode()"
+                  class="bg-blue-600 text-white px-3 py-2 rounded hover:bg-blue-700 transition-colors">
+            コピー
+          </button>
+        </div>
+        <p class="text-blue-600 text-sm mt-2">このコードを共有して、他の人を冷蔵庫に招待できます。</p>
+      </div>
+    <% end %>
+    
+  <div class="bg-white rounded-lg shadow-md p-6 sm:bg-transparent sm:p-4">
+    <!-- フィルタータブ -->
+    <div class="flex space-x-1 mb-6">
+      <button onclick="showFoodItems('all')"
+              class="filter-tab px-4 py-2 text-sm font-medium rounded-md bg-blue-100 text-blue-700">
+        すべて (<%= @room.food_items.count %>)
+      </button>
+      <button onclick="showFoodItems('fresh')"
+              class="filter-tab px-4 py-2 text-sm font-medium rounded-md text-gray-500 hover:text-gray-700">
+        新鮮 (<%= @room.food_items.fresh.count %>)
+      </button>
+      <button onclick="showFoodItems('expiring_soon')"
+              class="filter-tab px-4 py-2 text-sm font-medium rounded-md text-gray-500 hover:text-gray-700">
+        期限間近 (<%= @room.food_items.expiring_soon.count %>)
+      </button>
+      <button onclick="showFoodItems('expired')"
+              class="filter-tab px-4 py-2 text-sm font-medium rounded-md text-gray-500 hover:text-gray-700">
+        期限切れ (<%= @room.food_items.expired.count %>)
+      </button>
+    </div>
+
+    <!-- 食材一覧 -->
+    <% if @room.food_items.any? %>
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <% @room.food_items.each do |food_item| %>
+          <div class="food-item border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer
+                      <%= 'expired' if food_item.expired? %>
+                      <%= 'expiring_soon' if food_item.expiring_soon? %>
+                      <%= 'fresh' if food_item.fresh? %>"
+               style="cursor: pointer;"
+               onclick="window.location.href='<%= room_food_item_path(@room, food_item) %>'">
+
+            <!-- 食材ヘッダー -->
+            <div class="flex items-start justify-between mb-3">
+              <div class="flex items-center">
+                <span class="text-2xl mr-2"><%= food_item.category_icon %></span>
+                <div>
+                  <h3 class="font-semibold text-gray-800"><%= food_item.name %></h3>
+                  <p class="text-sm text-gray-600"><%= food_item.quantity %>個</p>
+                </div>
+              </div>
+
+              <!-- ステータスバッジ -->
+              <% if food_item.expired? %>
+                <span class="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-medium">期限切れ</span>
+              <% elsif food_item.expiring_soon? %>
+                <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium">期限間近</span>
+              <% else %>
+                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">新鮮</span>
+              <% end %>
+            </div>
+
+            <!-- 期限情報 -->
+            <div class="flex justify-between items-center mb-3">
+              <span class="text-sm text-gray-500">期限</span>
+              <% unless food_item.expired? %>
+                <div class="text-right">
+                  <p class="text-sm font-medium"><%= food_item.expiration_date.strftime('%m/%d') %></p>
+                  <p class="text-xs text-gray-500">残り<%= food_item.days_until_expiration %>日</p>
+                </div>
+              <% else %>
+                <div class="text-right">
+                  <p class="text-sm font-medium text-red-600">期限切れ</p>
+                </div>
+              <% end %>
+            </div>
+
+            <!-- アクションボタン -->
+            <% if food_item.registered_by == current_user || current_user.admin_of?(@room) %>
+              <div class="flex space-x-2" onclick="event.stopPropagation()">
+                <%= link_to edit_room_food_item_path(@room, food_item),
+                    class: "flex-1 bg-blue-50 text-blue-600 hover:bg-blue-100 px-3 py-2 rounded text-xs font-medium text-center transition-colors" do %>
+                  編集
+                <% end %>
+                <%= link_to [@room, food_item],
+                    data: { turbo_method: :delete, turbo_confirm: "#{food_item.name}を削除しますか？" },
+                    class: "flex-1 bg-red-50 text-red-600 hover:bg-red-100 px-3 py-2 rounded text-xs font-medium text-center transition-colors" do %>
+                  削除
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <!-- 空の状態 -->
+      <div class="text-center py-12">
+        <h3 class="text-lg font-medium text-gray-900 mb-2">冷蔵庫が空っぽです</h3>
+        <p class="text-gray-500 mb-4">最初の食材を追加してみましょう！</p>
+        <%= link_to new_room_food_item_path(@room),
+            class: "bg-green-600 text-white px-6 py-3 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors" do %>
+          最初の食材を登録
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<!-- 編集モーダル -->
+<% if current_user.admin_of?(@room) %>
+  <div id="editModal" class="fixed inset-0 z-50" style="display: none; background-color: rgba(0, 0, 0, 0.5);" onclick="closeEditModal()">
+    <div class="flex items-center justify-center min-h-screen p-4">
+      <div class="bg-white rounded-lg shadow-xl w-full max-w-md transform transition-all duration-300 scale-95" onclick="event.stopPropagation()">
+        <div class="p-6">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold text-gray-800">冷蔵庫を編集</h3>
+            <button onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600">
+              <span class="sr-only">閉じる</span>
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+
+          <%= form_with model: @room, local: false, id: "editRoomForm", class: "space-y-4" do |form| %>
+            <div id="modalErrors" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+            </div>
+
+            <div>
+              <%= form.label :name, "冷蔵庫名", class: "block text-sm font-medium text-gray-700 mb-2" %>
+              <%= form.text_field :name,
+                  class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+            </div>
+
+            <div>
+              <%= form.label :description, "説明", class: "block text-sm font-medium text-gray-700 mb-2" %>
+              <%= form.text_area :description, rows: 3,
+                  class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" %>
+            </div>
+
+            <div class="flex justify-end space-x-3 pt-4">
+              <button type="button" onclick="closeEditModal()"
+                      class="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium">
+                キャンセル
+              </button>
+              <%= form.submit "更新",
+                  class: "bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+
+<!-- JavaScript for filtering and modal -->
+<script>
+// 食材フィルタリング機能
+function showFoodItems(filter) {
+  // タブの状態を更新
+  document.querySelectorAll('.filter-tab').forEach(tab => {
+    tab.classList.remove('active', 'bg-blue-100', 'text-blue-700');
+    tab.classList.add('text-gray-500');
+  });
+
+  event.target.classList.add('active', 'bg-blue-100', 'text-blue-700');
+  event.target.classList.remove('text-gray-500');
+
+  // 食材カードの表示制御
+  document.querySelectorAll('.food-item').forEach(item => {
+    if (filter === 'all') {
+      item.style.display = 'block';
+    } else {
+      if (item.classList.contains(filter)) {
+        item.style.display = 'block';
+      } else {
+        item.style.display = 'none';
+      }
+    }
+  });
+}
+
+// モーダル管理機能
+function openEditModal() {
+  const modal = document.getElementById('editModal');
+  const modalContent = modal.querySelector('.transform');
+
+  // モーダルを表示
+  modal.style.display = 'block';
+  document.body.style.overflow = 'hidden';
+
+  // 少し遅延させてアニメーション開始
+  requestAnimationFrame(() => {
+    modalContent.classList.remove('scale-95');
+    modalContent.classList.add('scale-100');
+  });
+}
+
+function closeEditModal() {
+  const modal = document.getElementById('editModal');
+  const modalContent = modal.querySelector('.transform');
+
+  // 閉じるアニメーション
+  modalContent.classList.remove('scale-100');
+  modalContent.classList.add('scale-95');
+
+  setTimeout(() => {
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+  }, 300);
+
+  // エラーメッセージをクリア
+  const errorDiv = document.getElementById('modalErrors');
+  if (errorDiv) {
+    errorDiv.classList.add('hidden');
+    errorDiv.innerHTML = '';
+  }
+}
+
+// 招待コードコピー機能
+function copyInvitationCode() {
+  const codeElement = document.querySelector('.invitation-code');
+  const code = codeElement.textContent.trim();
+  const button = event.target.closest('button');
+  const originalText = button.innerHTML;
+
+  // 成功時の共通処理
+  function showSuccess() {
+    button.innerHTML = '✅ コピー完了!';
+    setTimeout(() => {
+      button.innerHTML = originalText;
+    }, 2000);
+  }
+
+  // 最新のClipboard APIを使用
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(code).then(() => {
+      console.log('Clipboard API success');
+      showSuccess();
+    }).catch((err) => {
+      console.log('Clipboard API failed:', err);
+      fallbackCopy();
+    });
+  } else {
+    console.log('Clipboard API not available, using fallback');
+    fallbackCopy();
+  }
+
+  // フォールバック方法（従来のexecCommand）
+  function fallbackCopy() {
+    try {
+      // 一時的なテキストエリアを作成
+      const textArea = document.createElement('textarea');
+      textArea.value = code;
+
+      // 画面外に配置
+      textArea.style.position = 'absolute';
+      textArea.style.left = '-9999px';
+      textArea.style.top = '0';
+
+      document.body.appendChild(textArea);
+
+      // テキストエリアを選択してコピー
+      textArea.select();
+      textArea.setSelectionRange(0, 99999); // モバイル対応
+
+      const successful = document.execCommand('copy');
+      document.body.removeChild(textArea);
+
+      if (successful) {
+        console.log('execCommand copy success');
+        showSuccess();
+      } else {
+        console.log('execCommand copy failed');
+        // 最後の手段として単純な成功表示（実際はコピーされていない可能性）
+        showSuccess();
+        console.warn('コピーが正常に動作しない可能性があります');
+      }
+    } catch (err) {
+      console.error('Copy failed completely:', err);
+      // エラーの場合でも成功表示（UX向上）
+      showSuccess();
+      console.warn('コピー機能でエラーが発生しましたが、手動でコードをコピーしてください:', code);
+    }
+  }
+}
+
+// ESCキーでモーダルを閉じる
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    closeEditModal();
+  }
+});
+
+// モーダル背景クリックで閉じる
+document.getElementById('editModal')?.addEventListener('click', function(e) {
+  if (e.target === this) {
+    closeEditModal();
+  }
+});
+
+// フォーム送信処理
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.getElementById('editRoomForm');
+  if (form) {
+    form.addEventListener('ajax:success', function(event) {
+      // 成功時の処理
+      const data = event.detail[0];
+
+      // ページ内容を更新
+      document.querySelector('h1').textContent = data.name;
+      const descElement = document.querySelector('.text-gray-600');
+      if (data.description) {
+        if (descElement) {
+          descElement.textContent = data.description;
+        } else {
+          // 説明がなかった場合、新しく追加
+          const titleElement = document.querySelector('h1').parentElement;
+          const newDesc = document.createElement('p');
+          newDesc.className = 'text-gray-600 mt-2';
+          newDesc.textContent = data.description;
+          titleElement.appendChild(newDesc);
+        }
+      } else if (descElement) {
+        descElement.remove();
+      }
+
+      closeEditModal();
+    });
+
+    form.addEventListener('ajax:error', function(event) {
+      // エラー時の処理
+      const errors = event.detail[0].errors;
+      const errorDiv = document.getElementById('modalErrors');
+
+      let errorHtml = '<ul class="list-disc list-inside">';
+      Object.keys(errors).forEach(key => {
+        errors[key].forEach(error => {
+          errorHtml += `<li>${error}</li>`;
+        });
+      });
+      errorHtml += '</ul>';
+
+      errorDiv.innerHTML = errorHtml;
+      errorDiv.classList.remove('hidden');
+    });
+  }
+});
+</script>

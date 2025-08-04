@@ -1,0 +1,100 @@
+<div class="container mx-auto px-4 py-8 max-w-2xl">
+<%= link_to [@room, @food_item], class: "inline-block text-gray-500 hover:text-gray-700 mr-4 mb-4" do %>← 食材詳細に戻る<% end %>
+
+  <div class="bg-white rounded-lg shadow-md p-6">
+    <div class="flex items-center mb-6">
+      <h1 class="text-2xl font-bold text-gray-800">食材の編集</h1>
+    </div>
+
+    <%= form_with model: [@room, @food_item], class: "space-y-6" do |form| %>
+      <% if @food_item.errors.any? %>
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+          <h4 class="font-bold mb-2"><%= pluralize(@food_item.errors.count, "件") %>のエラーがあります:</h4>
+          <ul class="list-disc list-inside">
+            <% @food_item.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="grid md:grid-cols-2 gap-6">
+        <!-- 食材名 -->
+        <div class="md:col-span-2">
+          <%= form.label :name, "食材名", class: "block text-sm font-medium text-gray-700 mb-2" %>
+          <%= form.text_field :name, placeholder: "例: りんご、牛乳、卵",
+              class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+        </div>
+
+        <!-- カテゴリ -->
+        <div>
+          <%= form.label :category, "カテゴリ", class: "block text-sm font-medium text-gray-700 mb-2" %>
+          <%= form.select :category,
+              options_for_select([
+                ['🥬 野菜', 'vegetables'],
+                ['🍎 果物', 'fruits'],
+                ['🥩 肉類', 'meat'],
+                ['🐟 魚類', 'fish'],
+                ['🥛 乳製品', 'dairy'],
+                ['🍞 穀物・パン', 'grains'],
+                ['🧂 調味料', 'seasonings'],
+                ['🥤 飲み物', 'beverages'],
+                ['🍪 スナック・お菓子', 'snacks'],
+                ['🧊 冷凍食品', 'frozen_food'],
+                ['🍽️ その他', 'others']
+              ], @food_item.category),
+              { prompt: 'カテゴリを選択してください' },
+              { class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" } %>
+        </div>
+
+        <!-- 賞味・消費期限 -->
+        <div>
+          <%= form.label :expiration_date, "賞味・消費期限", class: "block text-sm font-medium text-gray-700 mb-2" %>
+          <%= form.date_field :expiration_date,
+              class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+        </div>
+
+        <!-- 個数 -->
+        <div>
+          <%= form.label :quantity, "個数", class: "block text-sm font-medium text-gray-700 mb-2" %>
+          <%= form.number_field :quantity, min: 1, max: 999, placeholder: "1",
+              class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+          <p class="text-xs text-gray-500 mt-1">1〜999個まで登録可能です</p>
+        </div>
+
+        <!-- 使用者 -->
+        <div>
+          <%= form.label :used_by_id, "使用予定者", class: "block text-sm font-medium text-gray-700 mb-2" %>
+          <%= form.select :used_by_id,
+              options_for_select([['未設定', '']] + @room.users.map { |user| [user.display_name || user.email, user.id] }, @food_item.used_by_id),
+              {},
+              { class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" } %>
+        </div>
+
+        <!-- 使用制限タグ -->
+        <div>
+          <%= form.label :restriction_tags, "使用制限タグ", class: "block text-sm font-medium text-gray-700 mb-2" %>
+          <%= form.text_field :restriction_tags, placeholder: "例: アレルギー注意、〇〇専用",
+              class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+          <p class="text-xs text-gray-500 mt-1">アレルギーや使用制限がある場合に入力してください</p>
+        </div>
+
+        <!-- 一言メモ -->
+        <div class="md:col-span-2">
+          <%= form.label :memo, "一言メモ", class: "block text-sm font-medium text-gray-700 mb-2" %>
+          <%= form.text_area :memo, rows: 3, placeholder: "購入場所、保存方法、調理予定など",
+              class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" %>
+        </div>
+      </div>
+
+      <div class="flex justify-between items-center pt-6 border-t">
+        <%= link_to [@room, @food_item], class: "px-4 py-2 text-gray-600 hover:text-gray-800 font-medium" do %>
+          キャンセル
+        <% end %>
+
+        <%= form.submit "更新",
+            class: "bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors" %>
+      </div>
+    <% end %>
+  </div>
+</div>
