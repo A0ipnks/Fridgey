@@ -1,6 +1,39 @@
-# 冷蔵庫内食材把握アプリ - 要件定義書
+# Fridgey - 冷蔵庫管理アプリ
 
-## 1. プロジェクト概要
+家族で使える冷蔵庫内管理アプリ。食材の管理と賞味期限の追跡を簡単に行えます。
+
+## 機能
+
+* ユーザー認証（Devise）
+* 冷蔵庫（Room）の作成・管理
+* 食材（Food Item）の登録・編集・削除
+* 賞味期限の管理
+* レスポンシブデザイン（Tailwind CSS）
+
+## 技術スタック
+
+* Ruby 3.3.0
+* Rails 7.2.1
+* SQLite3（開発環境）
+* Tailwind CSS
+* Stimulus.js
+* Turbo
+
+## セットアップ
+
+```bash
+# 依存関係のインストール
+bundle install
+
+# データベースの作成とマイグレーション
+rails db:create
+rails db:migrate
+
+# 開発サーバーの起動
+bin/dev
+```
+
+## プロジェクト概要
 
 ### アプリ名
 Fridgey(フリッジー)
