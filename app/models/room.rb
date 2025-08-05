@@ -10,6 +10,24 @@ class Room < ApplicationRecord
 
   before_validation :generate_invitation_code, on: :create
 
+  scope :by_user, ->(user) { joins(:room_members).where(room_members: { user: user }) }
+
+  def admin_users
+    users.joins(:room_members).where(room_members: { role: 'admin' })
+  end
+
+  def member_users
+    users.joins(:room_members).where(room_members: { role: 'member' })
+  end
+
+  def user_role(user)
+    room_members.find_by(user: user)&.role
+  end
+
+  def admin?(user)
+    user_role(user) == 'admin'
+  end
+
   private
 
   def generate_invitation_code
