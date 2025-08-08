@@ -3,7 +3,7 @@ module ApplicationHelper
     name_param = name.present? ? name : "Anonymous"
 
     begin
-      # DiceBear API - 30+ beautiful avatar styles
+      # DiceBear APIを使用してアバターを生成
       image_tag "https://api.dicebear.com/7.x/#{style}/svg?seed=#{ERB::Util.url_encode(name_param)}&size=#{size}",
                 alt: "#{name_param}'s avatar",
                 class: "rounded-full block",
