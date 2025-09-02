@@ -1,0 +1,157 @@
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+  <%= link_to @room, class: "inline-block text-gray-500 hover:text-gray-700 mr-4 mb-4" do %>
+          ← 冷蔵庫に戻る
+        <% end %>
+  <div class="bg-white rounded-lg shadow-md p-6">
+    <!-- ヘッダー -->
+    <div class="flex justify-between items-start mb-6">
+      <div class="flex items-center">
+        <div class="flex items-center">
+          <span class="text-3xl mr-3"><%= @food_item.category_icon %></span>
+          <div>
+            <h1 class="text-2xl font-bold text-gray-800"><%= @food_item.name %></h1>
+            <p class="text-gray-600"><%= @food_item.room.name %></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ステータスバッジ -->
+      <% if @food_item.expired? %>
+        <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full font-medium">期限切れ</span>
+      <% elsif @food_item.expiring_soon? %>
+        <span class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full font-medium">期限間近</span>
+      <% else %>
+        <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full font-medium">新鮮</span>
+      <% end %>
+    </div>
+
+    <!-- 詳細情報 -->
+    <div class="grid md:grid-cols-2 gap-8">
+      <!-- 基本情報 -->
+      <div class="space-y-6">
+        <div>
+          <h3 class="text-lg font-semibold text-gray-800 mb-4">基本情報</h3>
+
+          <div class="space-y-4">
+            <div class="flex">
+              <span class="text-gray-600 w-24">カテゴリ:</span>
+              <span class="font-medium"><%= @food_item.category_icon %> <%=
+                case @food_item.category
+                when 'vegetables' then '野菜'
+                when 'fruits' then '果物'
+                when 'meat' then '肉類'
+                when 'fish' then '魚類'
+                when 'dairy' then '乳製品'
+                when 'grains' then '穀物・パン'
+                when 'seasonings' then '調味料'
+                when 'beverages' then '飲み物'
+                when 'snacks' then 'スナック・お菓子'
+                when 'frozen_food' then '冷凍食品'
+                when 'others' then 'その他'
+                else @food_item.category.humanize
+                end
+              %></span>
+            </div>
+
+            <div class="flex">
+              <span class="text-gray-600 w-24">期限:</span>
+              <div>
+                <span class="font-medium"><%= @food_item.expiration_date.strftime('%Y年%m月%d日') %></span>
+                <% unless @food_item.expired? %>
+                  <span class="text-sm text-gray-500 ml-2">(残り<%= @food_item.days_until_expiration %>日)</span>
+                <% end %>
+              </div>
+            </div>
+
+            <div class="flex">
+              <span class="text-gray-600 w-24">個数:</span>
+              <span class="font-medium"><%= @food_item.quantity %>個</span>
+            </div>
+
+            <div class="flex">
+              <span class="text-gray-600 w-24">登録者:</span>
+              <span><%= @food_item.registered_by.display_name || @food_item.registered_by.email %></span>
+            </div>
+
+            <% if @food_item.used_by %>
+              <div class="flex">
+                <span class="text-gray-600 w-24">使用予定:</span>
+                <span><%= @food_item.used_by.display_name || @food_item.used_by.email %></span>
+              </div>
+            <% end %>
+
+            <div class="flex">
+              <span class="text-gray-600 w-24">登録日:</span>
+              <span><%= @food_item.created_at.strftime('%Y年%m月%d日') %></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 制限タグ -->
+        <% if @food_item.restriction_tags.present? %>
+          <div>
+            <h4 class="text-md font-medium text-gray-800 mb-2">使用制限</h4>
+            <span class="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm">
+              <span class="mr-1">⚠️</span><%= @food_item.restriction_tags %>
+            </span>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- メモ・その他 -->
+      <div class="space-y-6">
+        <% if @food_item.memo.present? %>
+          <div>
+            <h4 class="text-md font-medium text-gray-800 mb-2">メモ</h4>
+            <div class="bg-gray-50 p-4 rounded-md">
+              <p class="text-gray-700 whitespace-pre-wrap"><%= @food_item.memo %></p>
+            </div>
+          </div>
+        <% end %>
+
+        <!-- 期限アラート -->
+        <% if @food_item.expired? %>
+          <div class="bg-red-50 border border-red-200 p-4 rounded-md">
+            <div class="flex items-center">
+              <span class="text-red-600 text-xl mr-2">⚠️</span>
+              <div>
+                <h4 class="text-red-800 font-medium">期限切れです</h4>
+                <p class="text-red-600 text-sm">安全のため、使用前に状態を確認してください。</p>
+              </div>
+            </div>
+          </div>
+        <% elsif @food_item.expiring_soon? %>
+          <div class="bg-yellow-50 border border-yellow-200 p-4 rounded-md">
+            <div class="flex items-center">
+              <span class="text-yellow-600 text-xl mr-2">⏰</span>
+              <div>
+                <h4 class="text-yellow-800 font-medium">期限が近づいています</h4>
+                <p class="text-yellow-600 text-sm">早めに使用することをおすすめします。</p>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- アクションボタン -->
+    <div class="flex justify-between items-center pt-8 mt-8 border-t">
+      <div class="flex space-x-4">
+        <%= link_to @room, class: "text-gray-600 hover:text-gray-800 font-medium" do %>
+          ← 冷蔵庫に戻る
+        <% end %>
+      </div>
+
+      <% if @food_item.registered_by == current_user || current_user.admin_of?(@room) %>
+        <div class="flex space-x-3">
+          <%= link_to "編集", edit_room_food_item_path(@room, @food_item),
+              class: "bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors" %>
+
+          <%= link_to "削除", [@room, @food_item],
+              data: { turbo_method: :delete, turbo_confirm: "#{@food_item.name}を削除しますか？\nこの操作は取り消せません。" },
+              class: "bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

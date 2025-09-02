@@ -1,0 +1,44 @@
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-green-50">
+  <div class="container mx-auto px-4 py-16">
+    <div class="text-center">
+      <div class="flex items-center justify-center mb-2">
+        <img src="/logo.svg" alt="Fridgey Logo" class="w-16 h-16 mr-4">
+        <h1 class="text-6xl font-bold text-gray-800">Fridgey</h1>
+      </div>
+      <h1 class="text-xl font-bold text-gray-800 mb-6">フリッジー</h1>
+      <p class="text-xl text-gray-600 mb-8">冷蔵庫内管理アプリ</p>
+
+      <div class="max-w-2xl mx-auto mb-12">
+        <div class="grid md:grid-cols-2 gap-6">
+          <div class="bg-white p-6 rounded-lg shadow-md">
+            <h3 class="text-lg font-semibold text-gray-800 mb-2">🍎 食材管理</h3>
+            <p class="text-gray-600 text-left">冷蔵庫の食材を簡単に登録・管理できます</p>
+          </div>
+          <div class="bg-white p-6 rounded-lg shadow-md">
+            <h3 class="text-lg font-semibold text-gray-800 mb-2">👨‍👩‍👧‍👦 家族共有</h3>
+            <p class="text-gray-600 text-left">家族みんなで食材情報をリアルタイム共有</p>
+          </div>
+          <div class="bg-white p-6 rounded-lg shadow-md">
+            <h3 class="text-lg font-semibold text-gray-800 mb-2">⏰ 期限通知</h3>
+            <p class="text-gray-600 text-left">賞味期限・消費期限をお知らせします</p>
+          </div>
+          <div class="bg-white p-6 rounded-lg shadow-md">
+            <h3 class="text-lg font-semibold text-gray-800 mb-2">💰 食費節約</h3>
+            <p class="text-gray-600 text-left">重複購入防止で食費を削減できます</p>
+          </div>
+        </div>
+      </div>
+
+      <% if user_signed_in? %>
+        <div class="space-y-4">
+          <%= link_to "冷蔵庫を管理する", rooms_path, class: "inline-block bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors" %>
+        </div>
+      <% else %>
+        <div class="space-x-4">
+          <%= link_to "新規登録", new_user_registration_path, class: "inline-block bg-green-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors" %>
+          <%= link_to "ログイン", new_user_session_path, class: "inline-block bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

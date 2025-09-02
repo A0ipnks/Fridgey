@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= content_for(:title) || "Fridgey" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Fridgey">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="msapplication-TileColor" content="#2563eb">
+    <meta name="application-name" content="Fridgey">
+    <meta name="description" content="家族で使える冷蔵庫内管理アプリ">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= yield :head %>
+
+    <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
+    <%= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
+
+    <link rel="icon" href="/logo.svg" type="image/svg+xml">
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="apple-touch-icon" href="/icon.png">
+
+    <%# Includes all stylesheet files in app/assets/stylesheets %>
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+
+    <!-- PWA Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('<%= pwa_service_worker_path %>')
+            .then((registration) => {
+              console.log('Service Worker registered successfully:', registration.scope);
+            })
+            .catch((error) => {
+              console.log('Service Worker registration failed:', error);
+            });
+        });
+      }
+    </script>
+
+
+
+  </head>
+
+  <body class="bg-gray-50 min-h-screen">
+    <!-- ナビゲーションバー -->
+    <nav class="bg-white shadow-sm border-b border-gray-100">
+      <div class="container mx-auto px-4 sm:px-6">
+        <div class="flex justify-between items-center h-16">
+          <!-- ロゴエリア -->
+          <%= link_to root_path, class: "flex items-center space-x-3 group" do %>
+            <div class="w-8 h-8 flex items-center justify-center">
+              <img src="/logo.svg" alt="Fridgey Logo" class="w-8 h-8">
+            </div>
+            <span class="text-xl font-bold text-gray-800 group-hover:text-blue-600 transition-colors">Fridgey</span>
+          <% end %>
+
+          <!-- ユーザーエリア -->
+          <div class="flex items-center space-x-3">
+            <% if user_signed_in? %>
+              <!-- プロフィールボタン -->
+              <%= link_to edit_user_path(current_user), class: "flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-50 transition-all duration-200 group" do %>
+                <div class="relative">
+                  <%= user_avatar(current_user.display_name || current_user.email, size: 32) %>
+                  <div class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-400 border-2 border-white rounded-full"></div>
+                </div>
+              <% end %>
+
+              <!-- ログアウトボタン -->
+              <%= link_to destroy_user_session_path, data: { turbo_method: :delete },
+                  class: "flex items-center space-x-1 px-3 py-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200 border border-gray-200 hover:border-red-200",
+                  title: "ログアウト" do %>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                </svg>
+                <span class="hidden sm:inline text-xs font-medium">ログアウト</span>
+              <% end %>
+            <% else %>
+              <!-- 未ログイン時のボタン -->
+              <div class="flex space-x-3">
+                <%= link_to "ログイン", new_user_session_path,
+                    class: "px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors" %>
+                <%= link_to "新規登録", new_user_registration_path,
+                    class: "px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-sm hover:shadow" %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- 通知エリア -->
+    <% if notice %>
+      <div class="bg-green-50 border-l-4 border-green-400 p-4" role="alert">
+        <div class="flex items-center">
+          <svg class="w-5 h-5 text-green-400 mr-3" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+          </svg>
+          <span class="text-green-800 font-medium"><%= notice %></span>
+        </div>
+      </div>
+    <% end %>
+
+    <% if alert %>
+      <div class="bg-red-50 border-l-4 border-red-400 p-4" role="alert">
+        <div class="flex items-center">
+          <svg class="w-5 h-5 text-red-400 mr-3" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+          </svg>
+          <span class="text-red-800 font-medium"><%= alert %></span>
+        </div>
+      </div>
+    <% end %>
+
+    <main>
+      <%= yield %>
+    </main>
+  </body>
+</html>
