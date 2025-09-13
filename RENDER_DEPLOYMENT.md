@@ -27,6 +27,18 @@ Renderダッシュボードで以下の環境変数を設定してください�
    - 値: `development:test`
    - render.yamlで設定済み
 
+6. **RAILS_DEFAULT_URL_HOST**
+   - 値: あなたのRenderアプリのドメイン（例: `your-app-name.onrender.com`）
+   - Deviseのメール機能で必要
+
+7. **RAILS_SERVE_STATIC_FILES**
+   - 値: `true`
+   - render.yamlで設定済み
+
+8. **RAILS_LOG_TO_STDOUT**
+   - 値: `true`
+   - render.yamlで設定済み
+
 ## master.keyの確認方法
 
 ```bash
