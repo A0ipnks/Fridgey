@@ -171,6 +171,19 @@
   @apply bg-gray-50;
 }
 
+/* テキスト配置の強制 */
+/* .text-left {
+  text-align: left !important;
+}
+
+.text-center {
+  text-align: center !important;
+}
+
+.text-right {
+  text-align: right !important;
+} */
+
 /* レスポンシブユーティリティ */
 .container {
   @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
