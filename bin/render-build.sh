@@ -8,9 +8,6 @@ bundle install
 # Precompile assets (Rails 8 with Propshaft)
 bundle exec rails assets:precompile
 
-# Clean old assets
-bundle exec rails assets:clean
-
 # Setup database
 bundle exec rails db:create RAILS_ENV=production
 bundle exec rails db:migrate RAILS_ENV=production
