@@ -59,11 +59,20 @@ export default class extends Controller {
 
 
   // Turbo Frame更新完了時（成功時のみモーダルを閉じる）
-  closeOnSuccess() {
+  closeOnSuccess(event) {
+    console.log("closeOnSuccess called", event)
+    console.log("containerTarget:", this.containerTarget)
+
     // エラーがない場合のみ閉じる
     const errorDiv = this.containerTarget.querySelector("#modalErrors")
+    console.log("errorDiv:", errorDiv)
+    console.log("errorDiv.classList:", errorDiv?.classList)
+
     if (!errorDiv || errorDiv.classList.contains("hidden")) {
+      console.log("Closing modal...")
       this.close()
+    } else {
+      console.log("Modal NOT closed - errors present")
     }
   }
 
