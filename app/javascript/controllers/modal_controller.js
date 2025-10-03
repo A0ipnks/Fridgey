@@ -57,38 +57,6 @@ export default class extends Controller {
     }
   }
 
-  // フォーム送信成功時
-  handleSuccess(event) {
-    const [data, status, xhr] = event.detail
-
-    // Turbo Streamレスポンスの場合は少し遅延させてから閉じる
-    if (xhr.getResponseHeader("Content-Type")?.includes("turbo-stream")) {
-      // Turbo Streamの更新が完了するまで待つ
-      setTimeout(() => {
-        this.close()
-      }, 100)
-      return
-    }
-
-    // JSONレスポンスの場合は手動でDOM更新してから閉じる
-    if (data) {
-      const titleElement = document.querySelector('[data-room-title]')
-      if (titleElement && data.name) {
-        titleElement.textContent = data.name
-      }
-
-      const descElement = document.querySelector('[data-room-description]')
-      if (data.description) {
-        if (descElement) {
-          descElement.textContent = data.description
-        }
-      } else if (descElement) {
-        descElement.remove()
-      }
-    }
-
-    this.close()
-  }
 
   // Turbo Frame更新完了時（成功時のみモーダルを閉じる）
   closeOnSuccess() {
