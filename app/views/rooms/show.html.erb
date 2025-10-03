@@ -1,3 +1,6 @@
+<!-- Stimulusコントローラースコープ -->
+<div data-controller="modal" data-action="keydown@window->modal#closeOnEscape">
+
 <div class="container mx-auto px-4 py-8">
     <!-- 戻るボタン -->
     <div class="mb-4">
@@ -10,7 +13,7 @@
     <div class="flex-col justify-between items-center mb-6 sm:flex-row sm:items-start sm:space-y-4 sm:mb-4">
       <div class="flex-1">
         <div class="flex items-center space-x-3 mb-2">
-          <h1 class="text-3xl font-bold text-gray-800"><%= @room.name %></h1>
+          <%= render "rooms/title", room: @room %>
           <% if current_user.admin_of?(@room) %>
             <%= link_to @room,
                 data: {
@@ -25,9 +28,7 @@
             <% end %>
           <% end %>
         </div>
-        <% if @room.description.present? %>
-          <p class="text-gray-600 mt-2"><%= @room.description %></p>
-        <% end %>
+        <%= render "rooms/description", room: @room %>
       </div>
 
       <!-- アクションエリア -->
@@ -38,7 +39,7 @@
         <% end %>
 
         <% if current_user.admin_of?(@room) %>
-          <button onclick="openEditModal()"
+          <button data-action="click->modal#open"
                   class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
             冷蔵庫情報を編集
           </button>
@@ -158,55 +159,15 @@
   </div>
 </div>
 
-<!-- 編集モーダル -->
-<% if current_user.admin_of?(@room) %>
-  <div id="editModal" class="fixed inset-0 z-50" style="display: none; background-color: rgba(0, 0, 0, 0.5);" onclick="closeEditModal()">
-    <div class="flex items-center justify-center min-h-screen p-4">
-      <div class="bg-white rounded-lg shadow-xl w-full max-w-md transform transition-all duration-300 scale-95" onclick="event.stopPropagation()">
-        <div class="p-6">
-          <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-semibold text-gray-800">冷蔵庫を編集</h3>
-            <button onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600">
-              <span class="sr-only">閉じる</span>
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-              </svg>
-            </button>
-          </div>
+  <!-- stimulus TurboFrames対応の編集モーダル -->
+  <% if current_user.admin_of?(@room) %>
+    <%= render "rooms/edit_modal", room: @room %>
+  <% end %>
 
-          <%= form_with model: @room, local: false, id: "editRoomForm", class: "space-y-4" do |form| %>
-            <div id="modalErrors" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-            </div>
+</div>
+<!-- /Stimulusコントローラースコープ -->
 
-            <div>
-              <%= form.label :name, "冷蔵庫名", class: "block text-sm font-medium text-gray-700 mb-2" %>
-              <%= form.text_field :name,
-                  class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" %>
-            </div>
-
-            <div>
-              <%= form.label :description, "説明", class: "block text-sm font-medium text-gray-700 mb-2" %>
-              <%= form.text_area :description, rows: 3,
-                  class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" %>
-            </div>
-
-            <div class="flex justify-end space-x-3 pt-4">
-              <button type="button" onclick="closeEditModal()"
-                      class="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium">
-                キャンセル
-              </button>
-              <%= form.submit "更新",
-                  class: "bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors" %>
-            </div>
-          <% end %>
-        </div>
-      </div>
-    </div>
-  </div>
-<% end %>
-
-
-<!-- JavaScript for filtering and modal -->
+<!-- JavaScript for filtering -->
 <script>
 // 食材フィルタリング機能
 function showFoodItems(filter) {
@@ -231,43 +192,6 @@ function showFoodItems(filter) {
       }
     }
   });
-}
-
-// モーダル管理機能
-function openEditModal() {
-  const modal = document.getElementById('editModal');
-  const modalContent = modal.querySelector('.transform');
-
-  // モーダルを表示
-  modal.style.display = 'block';
-  document.body.style.overflow = 'hidden';
-
-  // 少し遅延させてアニメーション開始
-  requestAnimationFrame(() => {
-    modalContent.classList.remove('scale-95');
-    modalContent.classList.add('scale-100');
-  });
-}
-
-function closeEditModal() {
-  const modal = document.getElementById('editModal');
-  const modalContent = modal.querySelector('.transform');
-
-  // 閉じるアニメーション
-  modalContent.classList.remove('scale-100');
-  modalContent.classList.add('scale-95');
-
-  setTimeout(() => {
-    modal.style.display = 'none';
-    document.body.style.overflow = 'auto';
-  }, 300);
-
-  // エラーメッセージをクリア
-  const errorDiv = document.getElementById('modalErrors');
-  if (errorDiv) {
-    errorDiv.classList.add('hidden');
-    errorDiv.innerHTML = '';
-  }
 }
 
 // 招待コードコピー機能
@@ -337,66 +261,4 @@ function copyInvitationCode() {
     }
   }
 }
-
-// ESCキーでモーダルを閉じる
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') {
-    closeEditModal();
-  }
-});
-
-// モーダル背景クリックで閉じる
-document.getElementById('editModal')?.addEventListener('click', function(e) {
-  if (e.target === this) {
-    closeEditModal();
-  }
-});
-
-// フォーム送信処理
-document.addEventListener('DOMContentLoaded', function() {
-  const form = document.getElementById('editRoomForm');
-  if (form) {
-    form.addEventListener('ajax:success', function(event) {
-      // 成功時の処理
-      const data = event.detail[0];
-
-      // ページ内容を更新
-      document.querySelector('h1').textContent = data.name;
-      const descElement = document.querySelector('.text-gray-600');
-      if (data.description) {
-        if (descElement) {
-          descElement.textContent = data.description;
-        } else {
-          // 説明がなかった場合、新しく追加
-          const titleElement = document.querySelector('h1').parentElement;
-          const newDesc = document.createElement('p');
-          newDesc.className = 'text-gray-600 mt-2';
-          newDesc.textContent = data.description;
-          titleElement.appendChild(newDesc);
-        }
-      } else if (descElement) {
-        descElement.remove();
-      }
-
-      closeEditModal();
-    });
-
-    form.addEventListener('ajax:error', function(event) {
-      // エラー時の処理
-      const errors = event.detail[0].errors;
-      const errorDiv = document.getElementById('modalErrors');
-
-      let errorHtml = '<ul class="list-disc list-inside">';
-      Object.keys(errors).forEach(key => {
-        errors[key].forEach(error => {
-          errorHtml += `<li>${error}</li>`;
-        });
-      });
-      errorHtml += '</ul>';
-
-      errorDiv.innerHTML = errorHtml;
-      errorDiv.classList.remove('hidden');
-    });
-  }
-});
 </script>
