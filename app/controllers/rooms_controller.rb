@@ -33,11 +33,21 @@ class RoomsController < ApplicationController
     if @room.update(room_params)
       respond_to do |format|
         format.html { redirect_to @room, notice: 'ルーム情報が更新されました。' }
+        format.turbo_stream {
+          render turbo_stream: [
+            turbo_stream.replace("room_title", partial: "rooms/title", locals: { room: @room }),
+            turbo_stream.replace("room_description", partial: "rooms/description", locals: { room: @room }),
+            turbo_stream.replace("room_edit_form", partial: "rooms/edit_form", locals: { room: @room })
+          ]
+        }
         format.json { render json: { name: @room.name, description: @room.description } }
       end
     else
       respond_to do |format|
         format.html { render :edit, status: :unprocessable_entity }
+        format.turbo_stream {
+          render turbo_stream: turbo_stream.replace("room_edit_form", partial: "rooms/edit_form", locals: { room: @room })
+        }
         format.json { render json: { errors: @room.errors }, status: :unprocessable_entity }
       end
     end
