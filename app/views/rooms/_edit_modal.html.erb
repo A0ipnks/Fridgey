@@ -1,0 +1,31 @@
+<!-- Stimulus + Turbo Frames対応の編集モーダル -->
+<div data-modal-target="container"
+     id="editModal"
+     class="fixed inset-0 z-50 hidden"
+     style="background-color: rgba(0, 0, 0, 0.5);"
+     data-action="click->modal#closeOnBackground">
+
+    <div class="flex items-center justify-center min-h-screen p-4">
+      <div class="bg-white rounded-lg shadow-xl w-full max-w-md transform transition-all duration-300 scale-95">
+        <div class="p-6">
+          <!-- ヘッダー -->
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold text-gray-800">冷蔵庫を編集</h3>
+            <button type="button"
+                    data-action="click->modal#close"
+                    class="text-gray-400 hover:text-gray-600">
+              <span class="sr-only">閉じる</span>
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Turbo Frame: フォーム部分だけを更新対象に -->
+          <%= turbo_frame_tag "room_edit_form" do %>
+            <%= render "rooms/edit_form", room: room %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
