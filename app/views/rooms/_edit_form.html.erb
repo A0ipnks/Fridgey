@@ -2,7 +2,7 @@
               id: "editRoomForm",
               class: "space-y-4",
               data: {
-                action: "turbo:submit-end->modal#handleSuccess ajax:error->modal#handleError"
+                action: "turbo:submit-end->modal#handleSuccess turbo:frame-render->modal#closeOnSuccess ajax:error->modal#handleError"
               } do |form| %>
 
   <!-- エラーメッセージエリア -->

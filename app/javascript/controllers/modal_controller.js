@@ -61,13 +61,16 @@ export default class extends Controller {
   handleSuccess(event) {
     const [data, status, xhr] = event.detail
 
-    // Turbo Streamレスポンスの場合は何もしない（自動処理される）
+    // Turbo Streamレスポンスの場合は少し遅延させてから閉じる
     if (xhr.getResponseHeader("Content-Type")?.includes("turbo-stream")) {
-      this.close()
+      // Turbo Streamの更新が完了するまで待つ
+      setTimeout(() => {
+        this.close()
+      }, 100)
       return
     }
 
-    // JSONレスポンスの場合は手動でDOM更新
+    // JSONレスポンスの場合は手動でDOM更新してから閉じる
     if (data) {
       const titleElement = document.querySelector('[data-room-title]')
       if (titleElement && data.name) {
@@ -85,6 +88,15 @@ export default class extends Controller {
     }
 
     this.close()
+  }
+
+  // Turbo Frame更新完了時（成功時のみモーダルを閉じる）
+  closeOnSuccess() {
+    // エラーがない場合のみ閉じる
+    const errorDiv = this.containerTarget.querySelector("#modalErrors")
+    if (!errorDiv || errorDiv.classList.contains("hidden")) {
+      this.close()
+    }
   }
 
   // フォーム送信エラー時
