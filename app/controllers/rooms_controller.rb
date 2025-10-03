@@ -1,7 +1,7 @@
 class RoomsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_room, only: [:show, :edit, :update, :destroy]
-  before_action :ensure_admin, only: [:edit, :update, :destroy]
+  before_action :set_room, only: [ :show, :edit, :update, :destroy ]
+  before_action :ensure_admin, only: [ :edit, :update, :destroy ]
 
   def index
     @rooms = current_user.rooms.includes(:users, :created_by)
@@ -20,7 +20,7 @@ class RoomsController < ApplicationController
 
     if @room.save
       @room.room_members.create!(user: current_user, role: :admin)
-      redirect_to @room, notice: 'ルームが作成されました。'
+      redirect_to @room, notice: "ルームが作成されました。"
     else
       render :new, status: :unprocessable_entity
     end
@@ -32,7 +32,7 @@ class RoomsController < ApplicationController
   def update
     if @room.update(room_params)
       respond_to do |format|
-        format.html { redirect_to @room, notice: 'ルーム情報が更新されました。' }
+        format.html { redirect_to @room, notice: "冷蔵庫情報が更新されました" }
         format.turbo_stream {
           render turbo_stream: [
             turbo_stream.replace("room_title", partial: "rooms/title", locals: { room: @room }),
@@ -55,7 +55,7 @@ class RoomsController < ApplicationController
 
   def destroy
     @room.destroy
-    redirect_to rooms_path, notice: 'ルームが削除されました。'
+    redirect_to rooms_path, notice: "ルームが削除されました。"
   end
 
   def join
@@ -66,12 +66,12 @@ class RoomsController < ApplicationController
     room = Room.find_by(invitation_code: invitation_code)
 
     if room.nil?
-      redirect_to join_rooms_path, alert: '招待コードが正しくありません。'
+      redirect_to join_rooms_path, alert: "招待コードが正しくありません。"
       return
     end
 
     if current_user.member_of?(room)
-      redirect_to room, notice: '既にこのルームのメンバーです。'
+      redirect_to room, notice: "既にこのルームのメンバーです。"
       return
     end
 
@@ -84,12 +84,12 @@ class RoomsController < ApplicationController
   def set_room
     @room = current_user.rooms.find(params[:id])
   rescue ActiveRecord::RecordNotFound
-    redirect_to rooms_path, alert: 'ルームが見つからないか、アクセス権限がありません。'
+    redirect_to rooms_path, alert: "ルームが見つからないか、アクセス権限がありません。"
   end
 
   def ensure_admin
     unless current_user.admin_of?(@room)
-      redirect_to @room, alert: '管理者権限が必要です。'
+      redirect_to @room, alert: "管理者権限が必要です。"
     end
   end
 
