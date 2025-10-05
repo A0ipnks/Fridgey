@@ -1,3 +1,5 @@
-<% if room.description.present? %>
-  <p id="room_description" data-room-description class="text-gray-600 mt-2"><%= room.description %></p>
-<% end %>
+<p id="room_description"
+   data-room-description
+   class="text-gray-600 mt-2 <%= 'hidden' unless room.description.present? %>">
+  <%= room.description %>
+</p>
