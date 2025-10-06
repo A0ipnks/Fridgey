@@ -1,8 +1,7 @@
 /*
  * This is a manifest file that'll be compiled into application.css.
+ * Custom component styles using Tailwind's @apply directive
  */
-
-@import "tailwindcss";
 
 /* ボタンコンポーネント */
 .btn {
