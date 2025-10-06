@@ -22,9 +22,10 @@
     <link rel="icon" href="/logo.png" type="image/png">
     <link rel="apple-touch-icon" href="/logo.png">
 
-    <%# Includes all stylesheet files in app/assets/stylesheets %>
+    <%# Includes Tailwind CSS build output %>
     <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
-    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%# Includes custom application styles %>
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
 
     <!-- PWA Service Worker Registration -->
@@ -119,5 +120,8 @@
     <main>
       <%= yield %>
     </main>
+
+    <!-- Toast通知コンテナ -->
+    <div data-controller="toast" data-toast-target="container"></div>
   </body>
 </html>
