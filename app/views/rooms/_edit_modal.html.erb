@@ -22,7 +22,7 @@
           </div>
 
           <!-- Turbo Frame: フォーム部分だけを更新対象に -->
-          <%= turbo_frame_tag "room_edit_form", data: { action: "turbo:frame-render->modal#closeOnSuccess" } do %>
+          <%= turbo_frame_tag "room_edit_form" do %>
             <%= render "rooms/edit_form", room: room %>
           <% end %>
         </div>

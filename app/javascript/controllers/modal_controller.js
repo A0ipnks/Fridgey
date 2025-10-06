@@ -4,6 +4,19 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
   static targets = ["container"]
 
+  connect() {
+    // カスタムイベント 'modal:close' をリッスン
+    this.closeListener = () => {
+      this.close()
+    }
+    window.addEventListener('modal:close', this.closeListener)
+  }
+
+  disconnect() {
+    // コントローラーが破棄される時にイベントリスナーを削除
+    window.removeEventListener('modal:close', this.closeListener)
+  }
+
   // モーダルを開く
   open() {
     this.containerTarget.classList.remove("hidden")
@@ -57,41 +70,19 @@ export default class extends Controller {
     }
   }
 
-
-  // Turbo Frame更新完了時（成功時のみモーダルを閉じる）
-  closeOnSuccess(event) {
-    console.log("closeOnSuccess called", event)
-    console.log("containerTarget:", this.containerTarget)
-
-    // エラーがない場合のみ閉じる
-    const errorDiv = this.containerTarget.querySelector("#modalErrors")
-    console.log("errorDiv:", errorDiv)
-    console.log("errorDiv.classList:", errorDiv?.classList)
-
-    if (!errorDiv || errorDiv.classList.contains("hidden")) {
-      console.log("Closing modal...")
+  // フォーム送信完了時の処理
+  handleSubmitEnd(event) {
+    // 成功時（fetchResponseが200系）のみモーダルを閉じる
+    if (event.detail.success) {
       this.close()
-    } else {
-      console.log("Modal NOT closed - errors present")
-    }
-  }
 
-  // フォーム送信エラー時
-  handleError(event) {
-    const [data, status, xhr] = event.detail
-    const errorDiv = this.containerTarget.querySelector("#modalErrors")
-
-    if (errorDiv && data.errors) {
-      let errorHtml = '<ul class="list-disc list-inside">'
-      Object.keys(data.errors).forEach(key => {
-        data.errors[key].forEach(error => {
-          errorHtml += `<li>${error}</li>`
-        })
-      })
-      errorHtml += '</ul>'
-
-      errorDiv.innerHTML = errorHtml
-      errorDiv.classList.remove("hidden")
+      // Toast通知を表示
+      window.dispatchEvent(new CustomEvent('toast:show', {
+        detail: {
+          message: '冷蔵庫情報が更新されました',
+          type: 'success'
+        }
+      }))
     }
   }
 }
