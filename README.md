@@ -14,7 +14,7 @@
 - 賞味期限・消費期限の管理と通知
 - 食材カテゴリ別の表示
 - 使用制限タグ（お弁当用、夕食用など）
-- リアルタイム通知（Action Cable）
+- レスポンシブなUI更新（Hotwire Turbo）
 - PWA対応（オフライン機能、ホーム画面追加）
 
 ## 技術スタック
@@ -22,7 +22,7 @@
 - **フレームワーク**: Ruby on Rails 7.x
 - **データベース**: PostgreSQL
 - **認証**: Devise
-- **リアルタイム通信**: Action Cable + Redis
+- **リアルタイム通信**: Solid Cable（準備段階）
 - **フロントエンド**: Hotwire (Turbo + Stimulus)
 - **スタイリング**: Tailwind CSS
 - **PWA**: Service Worker + Web App Manifest
@@ -44,8 +44,8 @@
    - 使用済みの食材を記録
 
 5. **家族と共有**
-   - ルームメンバー全員で食材情報をリアルタイム共有
-   - 賞味期限が近づくと通知を受け取る
+   - ルームメンバー全員で食材情報を共有（手動更新）
+   - 賞味期限が近づくと通知を受け取る（予定）
 
 ## リンク
 - サービス: https://fridgey-5ti7.onrender.com/
